@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tải File - Chuyển Khoản QR</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --accent: #38bdf8;
+    --accent-hover: #0ea5e9;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --border: #334155;
+    --success: #22c55e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 40px 32px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  h1 {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+  .qr-wrap {
+    background: #fff;
+    padding: 16px;
+    border-radius: 16px;
+    display: inline-block;
+    margin-bottom: 24px;
+  }
+  .qr-wrap img {
+    display: block;
+    width: 240px;
+    height: 240px;
+    object-fit: contain;
+  }
+  .info-box {
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 24px;
+    text-align: left;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .info-box .label {
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .info-box .value {
+    color: var(--text);
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .note {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .btn {
+    display: inline-block;
+    width: 100%;
+    padding: 14px 20px;
+    background: var(--accent);
+    color: #0f172a;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(56, 189, 248, 0.3);
+  }
+  .btn:disabled {
+    background: var(--border);
+    color: var(--muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  .hidden { display: none; }
+  .download-section {
+    margin-top: 16px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--border);
+  }
+  .success-icon {
+    color: var(--success);
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+  footer {
+    margin-top: 24px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Cảm ơn bạn đã ủng hộ</h1>
+    <p class="subtitle">Quét QR để chuyển khoản, sau đó nhận link tải file</p>
+
+    <div class="qr-wrap">
+      <!-- Thay src bên dưới bằng ảnh QR của bạn -->
+      <img id="qr" src="https://img.vietqr.io/image/TPB-01461787001-print.png" alt="QR chuyển khoản">
+    </div>
+
+    <div class="info-box">
+      <div class="label">Ngân hàng</div>
+      <div class="value" id="bank-name">Vietcombank</div>
+      <div class="label" style="margin-top:8px;">Số tài khoản</div>
+      <div class="value" id="bank-account">0123456789</div>
+      <div class="label" style="margin-top:8px;">Chủ tài khoản</div>
+      <div class="value" id="bank-owner">NGUYEN VAN A</div>
+      <div class="label" style="margin-top:8px;">Số tiền</div>
+      <div class="value" id="amount">50.000 VND</div>
+    </div>
+
+    <p class="note">Sau khi chuyển khoản thành công, nhấn nút bên dưới để tải file.</p>
+
+    <button class="btn" id="confirmBtn" onclick="showDownload()">Tôi đã chuyển khoản</button>
+
+    <div class="download-section hidden" id="downloadSection">
+      <div class="success-icon">✓</div>
+      <p class="note">Cảm ơn bạn! Nhấn để tải file:</p>
+      <a class="btn" id="downloadLink" href="#" target="_blank" rel="noopener">Tải file ngay</a>
+    </div>
+
+    <footer>© 2026</footer>
+  </div>
+
+<script>
+  // ====== CẤU HÌNH: sửa các giá trị bên dưới ======
+  const CONFIG = {
+    // Link tải file của bạn (Google Drive, Dropbox, v.v.)
+    downloadUrl: "https://docs.google.com/spreadsheets/d/14I66C00SsC6vsY2VJzCw0bFVuBcf7gWs/edit?usp=drive_link&ouid=113043227838294553567&rtpof=true&sd=true",
+
+    // Thông tin tài khoản (tùy chỉnh)
+    bankName: "MoMo / VietQR / Napas 247",
+    bankAccount: "*******696",
+    bankOwner: "NGUYỄN HỒ TRỌNG KHOA",
+    amount: "50.000 VND"
+  };
+  // ================================================
+
+  document.getElementById("bank-name").textContent = CONFIG.bankName;
+  document.getElementById("bank-account").textContent = CONFIG.bankAccount;
+  document.getElementById("bank-owner").textContent = CONFIG.bankOwner;
+  document.getElementById("amount").textContent = CONFIG.amount;
+  document.getElementById("downloadLink").href = CONFIG.downloadUrl;
+
+  function showDownload() {
+    document.getElementById("confirmBtn").classList.add("hidden");
+    document.getElementById("downloadSection").classList.remove("hidden");
+  }
+</script>
+</body>
+</html>
