@@ -141,8 +141,9 @@
     let cfg;
     if (JSONBIN_ID && JSONBIN_ID !== "REPLACE_WITH_YOUR_BIN_ID") {
       try {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
-          headers: { "X-Bin-Meta": "false" }
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest?_=${Date.now()}`, {
+          headers: { "X-Bin-Meta": "false" },
+          cache: "no-store"
         });
         if (res.ok) cfg = await res.json();
       } catch (e) { console.warn("JSONBin fetch failed, fallback to config.json:", e); }
