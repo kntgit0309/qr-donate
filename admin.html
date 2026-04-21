@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin - QR Donate</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --accent: #38bdf8;
+    --accent-hover: #0ea5e9;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --border: #334155;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warn: #f59e0b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container {
+    max-width: 560px;
+    margin: 40px auto;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+  .section-title {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--muted); margin: 20px 0 8px;
+  }
+  label { display: block; margin-bottom: 16px; }
+  label .label-text {
+    display: block; font-size: 13px; color: var(--muted);
+    margin-bottom: 6px; font-weight: 500;
+  }
+  input[type=text], input[type=password], textarea {
+    width: 100%; padding: 12px 14px;
+    background: #0f172a; color: var(--text);
+    border: 1px solid var(--border); border-radius: 10px;
+    font-size: 14px; font-family: inherit;
+  }
+  input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  textarea { min-height: 70px; resize: vertical; }
+  .btn {
+    display: inline-block; padding: 12px 20px;
+    background: var(--accent); color: #0f172a;
+    border: none; border-radius: 10px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+  .btn-ghost {
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--border); color: var(--text); }
+  .actions { display: flex; gap: 10px; margin-top: 20px; }
+  .msg {
+    margin-top: 16px; padding: 12px 14px; border-radius: 10px;
+    font-size: 13px; line-height: 1.5;
+  }
+  .msg.success { background: rgba(34,197,94,0.1); color: var(--success); border: 1px solid rgba(34,197,94,0.3); }
+  .msg.error { background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); }
+  .msg.warn { background: rgba(245,158,11,0.1); color: var(--warn); border: 1px solid rgba(245,158,11,0.3); }
+  .hidden { display: none; }
+  a { color: var(--accent); }
+  .help {
+    font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.5;
+  }
+  .small { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>⚙️ Trang quản lý</h1>
+    <p class="subtitle">Cập nhật config cho trang donate — commit trực tiếp qua GitHub API</p>
+
+    <div id="tokenSection">
+      <div class="section-title">GitHub Token</div>
+      <label>
+        <span class="label-text">Personal Access Token (scope: <code>repo</code> hoặc <code>public_repo</code>)</span>
+        <input type="password" id="token" placeholder="ghp_..." />
+        <div class="help">
+          Tạo tại: <a href="https://github.com/settings/tokens/new?scopes=public_repo&description=qr-donate-admin" target="_blank">github.com/settings/tokens</a>.
+          Token lưu trong trình duyệt bạn (localStorage), không upload đi đâu.
+        </div>
+      </label>
+      <button class="btn" onclick="saveTokenAndLoad()">Lưu token & Tải config</button>
+    </div>
+
+    <div id="editSection" class="hidden">
+      <div class="section-title">Cấu hình hiện tại</div>
+
+      <label>
+        <span class="label-text">Link tải file</span>
+        <textarea id="downloadUrl"></textarea>
+      </label>
+
+      <label>
+        <span class="label-text">Link ảnh QR</span>
+        <textarea id="qrUrl"></textarea>
+      </label>
+
+      <label>
+        <span class="label-text">Tên hiển thị (Ngân hàng)</span>
+        <input type="text" id="bankName" />
+      </label>
+
+      <label>
+        <span class="label-text">Số tài khoản</span>
+        <input type="text" id="bankAccount" />
+      </label>
+
+      <label>
+        <span class="label-text">Chủ tài khoản</span>
+        <input type="text" id="bankOwner" />
+      </label>
+
+      <label>
+        <span class="label-text">Số tiền gợi ý</span>
+        <input type="text" id="amount" />
+      </label>
+
+      <div class="actions">
+        <button class="btn" id="saveBtn" onclick="saveConfig()">Lưu & Deploy</button>
+        <button class="btn btn-ghost" onclick="location.reload()">Hủy</button>
+        <button class="btn btn-ghost" onclick="logout()">Đăng xuất token</button>
+      </div>
+
+      <div id="msg" class="msg hidden"></div>
+
+      <p class="small" style="margin-top:20px;">
+        Sau khi lưu, GitHub Pages sẽ redeploy trong ~1 phút.
+        Trang live: <a href="./" target="_blank">./index.html</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const REPO_OWNER = "kntgit0309";
+  const REPO_NAME = "qr-donate";
+  const CONFIG_PATH = "config.json";
+  const BRANCH = "main";
+  const TOKEN_KEY = "qr_donate_gh_token";
+
+  let currentSha = null;
+
+  function showMsg(text, type = "success") {
+    const el = document.getElementById("msg");
+    el.className = "msg " + type;
+    el.textContent = text;
+    el.classList.remove("hidden");
+  }
+
+  function getToken() {
+    return localStorage.getItem(TOKEN_KEY) || "";
+  }
+
+  async function ghFetch(path, options = {}) {
+    const token = getToken();
+    if (!token) throw new Error("Chưa có token");
+    const res = await fetch(`https://api.github.com${path}`, {
+      ...options,
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        ...(options.headers || {})
+      }
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(`GitHub API ${res.status}: ${err.message || res.statusText}`);
+    }
+    return res.json();
+  }
+
+  async function loadConfigFromGitHub() {
+    const data = await ghFetch(`/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CONFIG_PATH}?ref=${BRANCH}`);
+    currentSha = data.sha;
+    const content = atob(data.content.replace(/\s/g, ""));
+    return JSON.parse(content);
+  }
+
+  async function saveTokenAndLoad() {
+    const token = document.getElementById("token").value.trim();
+    if (!token) { alert("Nhập token trước"); return; }
+    localStorage.setItem(TOKEN_KEY, token);
+    try {
+      const cfg = await loadConfigFromGitHub();
+      document.getElementById("downloadUrl").value = cfg.downloadUrl || "";
+      document.getElementById("qrUrl").value = cfg.qrUrl || "";
+      document.getElementById("bankName").value = cfg.bankName || "";
+      document.getElementById("bankAccount").value = cfg.bankAccount || "";
+      document.getElementById("bankOwner").value = cfg.bankOwner || "";
+      document.getElementById("amount").value = cfg.amount || "";
+      document.getElementById("tokenSection").classList.add("hidden");
+      document.getElementById("editSection").classList.remove("hidden");
+    } catch (e) {
+      alert("Lỗi: " + e.message);
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  }
+
+  async function saveConfig() {
+    const btn = document.getElementById("saveBtn");
+    btn.disabled = true;
+    btn.textContent = "Đang lưu...";
+
+    const newConfig = {
+      downloadUrl: document.getElementById("downloadUrl").value.trim(),
+      qrUrl: document.getElementById("qrUrl").value.trim(),
+      bankName: document.getElementById("bankName").value.trim(),
+      bankAccount: document.getElementById("bankAccount").value.trim(),
+      bankOwner: document.getElementById("bankOwner").value.trim(),
+      amount: document.getElementById("amount").value.trim()
+    };
+
+    try {
+      const contentStr = JSON.stringify(newConfig, null, 2) + "\n";
+      const contentBase64 = btoa(unescape(encodeURIComponent(contentStr)));
+
+      await ghFetch(`/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CONFIG_PATH}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          message: "admin: update config.json",
+          content: contentBase64,
+          sha: currentSha,
+          branch: BRANCH
+        })
+      });
+
+      // Reload SHA for next save
+      const refreshed = await loadConfigFromGitHub();
+      showMsg("✅ Đã lưu. GitHub Pages sẽ redeploy trong ~1 phút.", "success");
+    } catch (e) {
+      showMsg("❌ Lỗi: " + e.message, "error");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Lưu & Deploy";
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem(TOKEN_KEY);
+    location.reload();
+  }
+
+  // Auto-load if token already stored
+  window.addEventListener("DOMContentLoaded", () => {
+    const token = getToken();
+    if (token) {
+      document.getElementById("token").value = token;
+      saveTokenAndLoad();
+    }
+  });
+</script>
+</body>
+</html>

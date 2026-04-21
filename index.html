@@ -136,8 +136,7 @@
     <p class="subtitle">Quét QR để chuyển khoản, sau đó nhận link tải file</p>
 
     <div class="qr-wrap">
-      <!-- Thay src bên dưới bằng ảnh QR của bạn -->
-      <img id="qr" src="https://img.vietqr.io/image/TPB-01461787001-print.png" alt="QR chuyển khoản">
+      <img id="qr" src="" alt="QR chuyển khoản">
     </div>
 
     <div class="info-box">
@@ -165,29 +164,23 @@
   </div>
 
 <script>
-  // ====== CẤU HÌNH: sửa các giá trị bên dưới ======
-  const CONFIG = {
-    // Link tải file của bạn (Google Drive, Dropbox, v.v.)
-    downloadUrl: "https://docs.google.com/spreadsheets/d/14I66C00SsC6vsY2VJzCw0bFVuBcf7gWs/edit?usp=drive_link&ouid=113043227838294553567&rtpof=true&sd=true",
-
-    // Thông tin tài khoản (tùy chỉnh)
-    bankName: "MoMo / VietQR / Napas 247",
-    bankAccount: "*******696",
-    bankOwner: "NGUYỄN HỒ TRỌNG KHOA",
-    amount: "50.000 VND"
-  };
-  // ================================================
-
-  document.getElementById("bank-name").textContent = CONFIG.bankName;
-  document.getElementById("bank-account").textContent = CONFIG.bankAccount;
-  document.getElementById("bank-owner").textContent = CONFIG.bankOwner;
-  document.getElementById("amount").textContent = CONFIG.amount;
-  document.getElementById("downloadLink").href = CONFIG.downloadUrl;
+  async function loadConfig() {
+    const res = await fetch("config.json?t=" + Date.now());
+    const cfg = await res.json();
+    document.getElementById("qr").src = cfg.qrUrl;
+    document.getElementById("bank-name").textContent = cfg.bankName;
+    document.getElementById("bank-account").textContent = cfg.bankAccount;
+    document.getElementById("bank-owner").textContent = cfg.bankOwner;
+    document.getElementById("amount").textContent = cfg.amount;
+    document.getElementById("downloadLink").href = cfg.downloadUrl;
+  }
 
   function showDownload() {
     document.getElementById("confirmBtn").classList.add("hidden");
     document.getElementById("downloadSection").classList.remove("hidden");
   }
+
+  loadConfig();
 </script>
 </body>
 </html>
