@@ -132,11 +132,6 @@
         <input type="text" id="bankOwner" />
       </label>
 
-      <label>
-        <span class="label-text">Số tiền gợi ý</span>
-        <input type="text" id="amount" />
-      </label>
-
       <div class="actions">
         <button class="btn" id="saveBtn" onclick="saveConfig()">Lưu & Deploy</button>
         <button class="btn btn-ghost" onclick="location.reload()">Hủy</button>
@@ -210,7 +205,6 @@
       document.getElementById("bankName").value = cfg.bankName || "";
       document.getElementById("bankAccount").value = cfg.bankAccount || "";
       document.getElementById("bankOwner").value = cfg.bankOwner || "";
-      document.getElementById("amount").value = cfg.amount || "";
       document.getElementById("tokenSection").classList.add("hidden");
       document.getElementById("editSection").classList.remove("hidden");
     } catch (e) {
@@ -229,8 +223,7 @@
       qrUrl: document.getElementById("qrUrl").value.trim(),
       bankName: document.getElementById("bankName").value.trim(),
       bankAccount: document.getElementById("bankAccount").value.trim(),
-      bankOwner: document.getElementById("bankOwner").value.trim(),
-      amount: document.getElementById("amount").value.trim()
+      bankOwner: document.getElementById("bankOwner").value.trim()
     };
 
     try {
